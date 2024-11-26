@@ -28,10 +28,21 @@ body {
     flex: 0 0 30%; /* Occupies a smaller fixed width */
     margin-left: 50px;
     font-size: 20px;
-    color: #FF6A00;
+    color: #ffffff; /* Text color */
     text-align: center;
     font-weight: bold;
+    background-color: rgba(241, 174, 133, 0.26); /* White background */
+    border: 2px solid #FF6A00; /* Orange border */
+    padding: 20px; /* Add padding for spacing inside the border */
+    border-radius: 10px; /* Optional: for rounded corners */
+    text-shadow: 
+        1px 1px 0 #0e0e0e,  /* Orange outline shadow */
+        -1px -1px 0 #0a0a09,
+        1px -1px 0 #0f0f0e,
+        -1px 1px 0 #181717;  /* Multiple shadows to simulate outline */
+
 }
+
 
 .form-wrapper {
     flex: 0 0 350px; /* Keeps the form width fixed */
