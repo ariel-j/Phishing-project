@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 120px;
+    height: auto;
+    background: transparent;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+}
+
+.left-text {
+    flex: 0 0 30%; /* Occupies a smaller fixed width */
+    margin-left: 50px;
+    font-size: 20px;
+    color: #FF6A00;
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-wrapper {
+    flex: 0 0 350px; /* Keeps the form width fixed */
+    background-color: #FF6A00;
+    padding: 30px;
+    border-radius: 10px;
+    margin-right: 50px;
+    text-align: right;
+    color: white;
+}
+
+.form-wrapper h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.form-wrapper label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.form-wrapper input,
+.form-wrapper select,
+.form-wrapper button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+}
+
+.form-wrapper input,
+.form-wrapper select {
+    color: black;
+}
+
+.form-wrapper button {
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+footer {
+    background-color: orange;
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+}
