@@ -1,0 +1,27 @@
+# Ignore MySQL specific files (if applicable)
+*.log          # Ignore log files
+mysql-data/    # Ignore MySQL data directory (if applicable)
+
+# Ignore the node_modules directory
+node_modules/  # This directory is created by npm or yarn
+
+# Ignore dependency installation files (e.g., package-lock.json for npm)
+package-lock.json
+yarn.lock
+
+# Ignore IDE and OS-specific files
+.idea/          # JetBrains IDEs (IntelliJ, WebStorm)
+.vscode/        # VS Code
+.DS_Store       # macOS system files
+
+# Ignore the MySQL installer or any downloaded binaries
+mysql-installer/  # If you downloaded MySQL using the installer, ignore it
+*.exe            # Windows executables
+
+# Ignore any compiled or generated files (e.g., build output)
+build/
+dist/
+
+# Ignore configuration or temporary files
+*.env            # Environment variables file (for secrets, etc.)
+*.bak            # Backup files
