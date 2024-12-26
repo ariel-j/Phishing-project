@@ -85,10 +85,22 @@
                                                 e.preventDefault();
                                                 
                                                 try {
+                                                    // Create FormData object
                                                     const formData = new FormData(this);
+                                                    
+                                                    // Convert FormData to JSON format
+                                                    const data = {};
+                                                    formData.forEach((value, key) => {
+                                                        data[key] = value;
+                                                    });
+                                            
+                                                    // Send as JSON
                                                     const response = await fetch('/submit-form', {
                                                         method: 'POST',
-                                                        body: formData
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                        },
+                                                        body: JSON.stringify(data)
                                                     });
                                                     
                                                     if (response.ok) {
@@ -105,7 +117,7 @@
                                                         // Redirect after a short delay
                                                         setTimeout(() => {
                                                             window.location.href = '/success.html';
-                                                        }, 1000);
+                                                        }, 100);
                                                     }
                                                 } catch (error) {
                                                     console.error('Error:', error);
