@@ -36,13 +36,37 @@ db.connect(err => {
 
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
-    const { 'first-name': firstname, 'last-name': lastname, email, phone, 'study-interest': subject, consent } = req.body;
-    const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
+    console.log('Received form data:', req.body); // Debug log
 
-    db.query(query, [firstname, lastname, email, phone, subject, consent], (err, result) => {
+    // Extract form data using the exact field names from your HTML form
+    const formData = {
+        firstname: req.body['first-name'],
+        lastname: req.body['last-name'],
+        email: req.body.email,
+        phone: req.body.phone,
+        subject: req.body['study-interest'],
+        consent: req.body.consent ? 1 : 0
+    };
+
+    console.log('Processed form data:', formData); // Debug log
+
+    const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
+    const values = [
+        formData.firstname,
+        formData.lastname,
+        formData.email,
+        formData.phone,
+        formData.subject,
+        formData.consent
+    ];
+
+    db.query(query, values, (err, result) => {
         if (err) {
+            console.error('Database error:', err); // Debug log
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
+
+        console.log('Data saved successfully:', result); // Debug log
 
         // Send success text file and redirect
         res.set({
@@ -50,11 +74,7 @@ app.post('/submit-form', (req, res) => {
             'Content-Disposition': 'attachment; filename=success.txt'
         });
         
-        // After sending file, redirect
         res.send('Successfully signed up! :)\n\nRedirecting...');
-        
-        // Note: Since we can't actually do both a file download and redirect in one response,
-        // we'll need to add a small piece of JavaScript to the HTML form
     });
 });
 
