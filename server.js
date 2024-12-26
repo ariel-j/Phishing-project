@@ -36,18 +36,20 @@ db.connect(err => {
 
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
-    console.log('Raw request body:', req.body);
+    console.log('Received form data:', req.body); // Debug log
 
+    // Extract form data using the exact field names from your HTML form
     const formData = {
         subject: req.body['study-interest'],
-        firstname: req.body['first-name'],
-        lastname: req.body['last-name'],
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
         email: req.body.email,
         phone: req.body.phone,
+        
         consent: req.body.consent ? 1 : 0
     };
 
-    console.log('Formatted data for database:', formData);
+    console.log('Processed form data:', formData); // Debug log
 
     const query = 'INSERT INTO form_data (subject, firstname, lastname, email, phone, consent) VALUES (?, ?, ?, ?, ?, ?)';
     const values = [
@@ -59,16 +61,15 @@ app.post('/submit-form', (req, res) => {
         formData.consent
     ];
 
-    console.log('SQL query values:', values);
-
     db.query(query, values, (err, result) => {
         if (err) {
-            console.error('Database error:', err);
+            console.error('Database error:', err); // Debug log
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
 
-        console.log('Database result:', result);
+        console.log('Data saved successfully:', result); // Debug log
 
+        // Send success text file and redirect
         res.set({
             'Content-Type': 'text/plain',
             'Content-Disposition': 'attachment; filename=success.txt'
