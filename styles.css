@@ -1,110 +1,200 @@
-body {
+/* Base Styles */
+:root {
+    --bgu-orange: #F7941E;
+    --bgu-dark-orange: #E87722;
+    --text-color: #2D3748;
+    --bg-color: #F7FAFC;
+}
+
+* {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    direction: rtl;
-    background: url('background.jpg') no-repeat center center fixed;
-    background-size: cover;
+    box-sizing: border-box;
 }
 
-.logo {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 120px;
-    height: auto;
-    background: transparent;
+body {
+    font-family: 'Heebo', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,248,240,0.95) 100%);
+    min-height: 100vh;
 }
-
-.checkbox-container {
-    display: flex;
-    justify-content: flex-end; /* Align the checkbox and label to the right */
-    width: 100%;
-    margin-top: 10px; /* Optional: Add margin-top for better spacing */
-    
-  }
-  
-  input[type="checkbox"] {
-    margin-left: auto; /* Pushes the checkbox to the right */
-  }
-
-  label {
-    margin-right: 10px; /* Adds a small gap between the checkbox and the label */
-}
-  
 
 .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Header Styles */
+.main-header {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    height: 100vh;
 }
 
-.left-text {
-    flex: 0 0 30%; /* Occupies a smaller fixed width */
-    margin-left: 50px;
-    font-size: 20px;
-    color: #ffffff; /* Text color */
-    text-align: center;
+.header-logo {
+    height: 48px;
+}
+
+.header-title {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+/* Main Content Styles */
+.main-content {
+    padding: 3rem 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+}
+
+/* Info Card Styles */
+.info-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.info-content p {
+    margin-bottom: 1rem;
+}
+
+.contact-box {
+    background-color: #FFF5EB;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.phone-number {
     font-weight: bold;
-    background-color: rgba(241, 174, 133, 0.26); /* White background */
-    border: 2px solid #FF6A00; /* Orange border */
-    padding: 20px; /* Add padding for spacing inside the border */
-    border-radius: 10px; /* Optional: for rounded corners */
-    text-shadow: 
-        1px 1px 0 #0e0e0e,  /* Orange outline shadow */
-        -1px -1px 0 #0a0a09,
-        1px -1px 0 #0f0f0e,
-        -1px 1px 0 #181717;  /* Multiple shadows to simulate outline */
-
+    color: var(--bgu-dark-orange);
 }
 
-
-.form-wrapper {
-    flex: 0 0 350px; /* Keeps the form width fixed */
-    background-color: #FF6A00;
-    padding: 30px;
-    border-radius: 10px;
-    margin-right: 50px;
-    text-align: right;
+/* Form Card Styles */
+.form-card {
+    background: linear-gradient(135deg, var(--bgu-orange) 0%, var(--bgu-dark-orange) 100%);
+    padding: 2rem;
+    border-radius: 1rem;
     color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-wrapper h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
+.form-title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.form-wrapper label {
-    display: block;
-    margin: 10px 0 5px;
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.form-wrapper input,
-.form-wrapper select,
-.form-wrapper button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.75rem;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--bgu-orange);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(247, 148, 30, 0.2);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+}
+
+.submit-button {
+    background-color: white;
+    color: var(--bgu-dark-orange);
+    padding: 1rem;
     border: none;
-    border-radius: 5px;
-}
-
-.form-wrapper input,
-.form-wrapper select {
-    color: black;
-}
-
-.form-wrapper button {
-    background-color: black;
-    color: white;
+    border-radius: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-footer {
-    background-color: orange;
+.submit-button:hover {
+    background-color: #F8F9FA;
+    transform: translateY(-1px);
+}
+
+/* Footer Styles */
+.main-footer {
+    background-color: #2D3748;
     color: white;
+    padding: 1.5rem 0;
     text-align: center;
-    padding: 10px 20px;
+    margin-top: 3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .header-title {
+        font-size: 1.25rem;
+    }
 }
