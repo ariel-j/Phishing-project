@@ -36,16 +36,25 @@ db.connect(err => {
 
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
-    const { firstname, lastname, email, phone, subject, consent } = req.body;
+    const { 'first-name': firstname, 'last-name': lastname, email, phone, 'study-interest': subject, consent } = req.body;
     const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
 
     db.query(query, [firstname, lastname, email, phone, subject, consent], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
-        //res.status(200).json({ message: 'Form data saved successfully' });
-        // Redirect to success page
-    res.redirect('/success.html'); // Replace with your desired page
+
+        // Create success text file content
+        const successText = 'Successfully signed up! :)';
+
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename=success.txt');
+
+        // Send file and redirect after download
+        res.send(successText);
+        
+        // Note: The redirect will happen client-side after the download
     });
 });
 
