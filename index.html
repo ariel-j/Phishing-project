@@ -82,50 +82,50 @@
                     </div>
 
                     <button type="submit" class="submit-button">שלח/י טופס</button>
-                                        <script>
-                                            document.querySelector('.contact-form').addEventListener('submit', async function(e) {
-                                                e.preventDefault();
-                                                
-                                                try {
-                                                    // Create FormData object
-                                                    const formData = new FormData(this);
-                                                    
-                                                    // Convert FormData to JSON format
-                                                    const data = {};
-                                                    formData.forEach((value, key) => {
-                                                        data[key] = value;
-                                                    });
-                                            
-                                                    // Send as JSON
-                                                    const response = await fetch('/submit-form', {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json',
-                                                        },
-                                                        body: JSON.stringify(data)
-                                                    });
-                                                    
-                                                    if (response.ok) {
-                                                        // Download the file
-                                                        const blob = await response.blob();
-                                                        const url = window.URL.createObjectURL(blob);
-                                                        const a = document.createElement('a');
-                                                        a.href = url;
-                                                        a.download = 'success.txt';
-                                                        document.body.appendChild(a);
-                                                        a.click();
-                                                        document.body.removeChild(a);
-                                                        
-                                                        // Redirect after a short delay
-                                                        setTimeout(() => {
-                                                            window.location.href = '/success.html';
-                                                        }, 100);
-                                                    }
-                                                } catch (error) {
-                                                    console.error('Error:', error);
-                                                    alert('Something went wrong. Please try again.');
-                                                }
-                                            });
+                    <script>
+                        document.querySelector('.contact-form').addEventListener('submit', async function (e) {
+                            e.preventDefault();
+
+                            try {
+                                // Create FormData object
+                                const formData = new FormData(this);
+
+                                // Convert FormData to JSON format
+                                const data = {};
+                                formData.forEach((value, key) => {
+                                    data[key] = value;
+                                });
+
+                                // Send as JSON
+                                const response = await fetch('/submit-form', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(data)
+                                });
+
+                                if (response.ok) {
+                                    // Download the file
+                                    const blob = await response.blob();
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'success.txt';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+
+                                    // Redirect after a short delay
+                                    setTimeout(() => {
+                                        window.location.href = '/success.html';
+                                    }, 100);
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Something went wrong. Please try again.');
+                            }
+                        });
                     </script>
                 </form>
             </div>
