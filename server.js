@@ -43,9 +43,34 @@ app.post('/submit-form', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
-        //res.status(200).json({ message: 'Form data saved successfully' });
+
+        document.querySelector('.contact-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Create simple success message
+            const textContent = "Successfully signed up! :)";
+
+            // Create and download text file
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'success.txt';
+
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+
+        });
+        
         // Redirect to success page
-    res.redirect('/success.html'); // Replace with your desired page
+        res.redirect('/success.html'); // Replace with your desired page
+
+      
     });
 });
 
