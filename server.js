@@ -40,23 +40,24 @@ app.post('/submit-form', (req, res) => {
 
     // Extract form data using the exact field names from your HTML form
     const formData = {
+        subject: req.body['study-interest'],
         firstname: req.body['first-name'],
         lastname: req.body['last-name'],
         email: req.body.email,
         phone: req.body.phone,
-        subject: req.body['study-interest'],
+        
         consent: req.body.consent ? 1 : 0
     };
 
     console.log('Processed form data:', formData); // Debug log
 
-    const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO form_data (subject, firstname, lastname, email, phone, consent) VALUES (?, ?, ?, ?, ?, ?)';
     const values = [
+        formData.subject,
         formData.firstname,
         formData.lastname,
         formData.email,
         formData.phone,
-        formData.subject,
         formData.consent
     ];
 
