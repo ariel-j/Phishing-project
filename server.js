@@ -33,19 +33,49 @@ db.connect(err => {
     }
     console.log('Connected to MySQL');
 });
-
+//works
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
-    const { firstname, lastname, email, phone, subject, consent } = req.body;
-    const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
+    console.log('Received form data:', req.body); // Debug log
 
-    db.query(query, [firstname, lastname, email, phone, subject, consent], (err, result) => {
+    // Extract form data using the exact field names from your HTML form
+    const formData = {
+        subject: req.body['study-interest'],
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        phone: req.body.phone,
+        
+        consent: req.body.consent ? 1 : 0
+    };
+
+    console.log('Processed form data:', formData); // Debug log
+
+    const query = 'INSERT INTO form_data (subject, firstname, lastname, email, phone, consent) VALUES (?, ?, ?, ?, ?, ?)';
+    const values = [
+        formData.subject,
+        formData.firstname,
+        formData.lastname,
+        formData.email,
+        formData.phone,
+        formData.consent
+    ];
+
+    db.query(query, values, (err, result) => {
         if (err) {
+            console.error('Database error:', err); // Debug log
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
-        //res.status(200).json({ message: 'Form data saved successfully' });
-        // Redirect to success page
-    res.redirect('/success.html'); // Replace with your desired page
+
+        console.log('Data saved successfully:', result); // Debug log
+
+        // Send success text file and redirect
+        res.set({
+            'Content-Type': 'text/plain',
+            'Content-Disposition': 'attachment; filename=success.txt'
+        });
+        
+        res.send('Successfully signed up! :)\n\nRedirecting...');
     });
 });
 
