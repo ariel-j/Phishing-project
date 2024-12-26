@@ -44,36 +44,17 @@ app.post('/submit-form', (req, res) => {
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
 
-        // Create success text file content
-        const successText = 'Successfully signed up! :)';
-
-        // Set headers for file download
-        res.attachment('success.txt');
+        // Send success text file and redirect
+        res.set({
+            'Content-Type': 'text/plain',
+            'Content-Disposition': 'attachment; filename=success.txt'
+        });
         
-        // For the redirect to work with the file download, we need a small script
-        const htmlResponse = `
-            <html>
-                <body>
-                    <script>
-                        // First trigger the file download
-                        const blob = new Blob(['${successText}'], { type: 'text/plain' });
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = 'success.txt';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        
-                        // Then redirect after a short delay
-                        setTimeout(() => {
-                            window.location.href = '/success.html';
-                        }, 1000);
-                    </script>
-                </body>
-            </html>`;
-
-        res.send(htmlResponse);
+        // After sending file, redirect
+        res.send('Successfully signed up! :)\n\nRedirecting...');
+        
+        // Note: Since we can't actually do both a file download and redirect in one response,
+        // we'll need to add a small piece of JavaScript to the HTML form
     });
 });
 
