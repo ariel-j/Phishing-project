@@ -33,7 +33,7 @@ db.connect(err => {
     }
     console.log('Connected to MySQL');
 });
-
+//works
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
     console.log('Received form data:', req.body); // Debug log
