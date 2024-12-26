@@ -92,39 +92,19 @@
         </div>
     </footer>
 
-    <script>
-        document.querySelector('.contact-form').addEventListener('submit', function(e) {
+        <script>
+            document.querySelector('.contact-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Gather form data
-            const formData = {
-                studyInterest: this.querySelector('[name="study-interest"]').value,
-                firstName: this.querySelector('[name="first-name"]').value,
-                lastName: this.querySelector('[name="last-name"]').value,
-                email: this.querySelector('[name="email"]').value,
-                phone: this.querySelector('[name="phone"]').value,
-                consent: this.querySelector('[name="consent"]').checked
-            };
+            // Create simple success message
+            const textContent = "Successfully signed up! :)";
             
-            // Create text content
-            // Update this part in your script
-            const textContent = `פרטי הרשמה ליום פתוח - אוניברסיטת בן-גוריון
-            ===============================
-            תחום עניין: ${formData.studyInterest}
-            שם פרטי: ${formData.firstName}
-            שם משפחה: ${formData.lastName}
-            אימייל: ${formData.email}
-            טלפון: ${formData.phone}
-            הסכמה לקבלת מידע: ${formData.consent ? 'כן' : 'לא'}
-            ===============================
-            תאריך הרשמה: ${new Date().toLocaleString('he-IL')}`;;
-        
-            // Create blob and download link
+            // Create and download text file
             const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `registration_${formData.firstName}_${formData.lastName}.txt`;
+            link.download = 'success.txt';
             
             // Trigger download
             document.body.appendChild(link);
@@ -134,12 +114,9 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(link);
             
-            // Optional: Reset form
+            // Reset form
             this.reset();
-            
-            // Optional: Show success message
-            alert('ההרשמה הושלמה בהצלחה! הקובץ יורד כעת למחשבך.');
-        });
-        </script>
+    });
+    </script>
 </body>
 </html>
