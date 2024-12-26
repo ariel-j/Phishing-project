@@ -36,7 +36,7 @@ db.connect(err => {
 
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
-    const { firstname, lastname, email, phone, subject, consent } = req.body;
+    const { 'first-name': firstname, 'last-name': lastname, email, phone, 'study-interest': subject, consent } = req.body;
     const query = 'INSERT INTO form_data (firstname, lastname, email, phone, subject, consent) VALUES (?, ?, ?, ?, ?, ?)';
 
     db.query(query, [firstname, lastname, email, phone, subject, consent], (err, result) => {
@@ -44,33 +44,17 @@ app.post('/submit-form', (req, res) => {
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
 
-        document.querySelector('.contact-form').addEventListener('submit', function (e) {
-            e.preventDefault();
+        // Create success text file content
+        const successText = 'Successfully signed up! :)';
 
-            // Create simple success message
-            const textContent = "Successfully signed up! :)";
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename=success.txt');
 
-            // Create and download text file
-            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'success.txt';
-
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-
-            // Cleanup
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(link);
-
-        });
+        // Send file and redirect after download
+        res.send(successText);
         
-        // Redirect to success page
-        res.redirect('/success.html'); // Replace with your desired page
-
-      
+        // Note: The redirect will happen client-side after the download
     });
 });
 
