@@ -22,7 +22,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'Aa12345',
-    database: 'site'
+    database: 'site',
+    charset: 'utf8mb4'
 });
 
 db.connect(err => {
@@ -42,7 +43,9 @@ app.post('/submit-form', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Error saving data', error: err });
         }
-        res.status(200).json({ message: 'Form data saved successfully' });
+        //res.status(200).json({ message: 'Form data saved successfully' });
+        // Redirect to success page
+    res.redirect('/success.html'); // Replace with your desired page
     });
 });
 

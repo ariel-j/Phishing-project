@@ -16,6 +16,23 @@ body {
     background: transparent;
 }
 
+.checkbox-container {
+    display: flex;
+    justify-content: flex-end; /* Align the checkbox and label to the right */
+    width: 100%;
+    margin-top: 10px; /* Optional: Add margin-top for better spacing */
+    
+  }
+  
+  input[type="checkbox"] {
+    margin-left: auto; /* Pushes the checkbox to the right */
+  }
+
+  label {
+    margin-right: 10px; /* Adds a small gap between the checkbox and the label */
+}
+  
+
 .container {
     display: flex;
     flex-direction: row;

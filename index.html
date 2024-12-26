@@ -21,7 +21,7 @@
         <!-- Form Section -->
         <div class="form-wrapper">
             <h2>רוצה לדעת עוד?</h2>
-            <form action="http://localhost:3000/submit-form" method="POST">
+            <form action="http://localhost:3000/submit-form" method="POST" accept-charset="UTF-8">
                 <label for="subject">מה מעניין אותך ללמוד?</label>
                 <select id="subject" name="subject">
                     <option value="subject1">תוכנית א'</option>
@@ -39,9 +39,15 @@
 
                 <label for="phone">נייד</label>
                 <input type="tel" id="phone" name="phone" required>
+<!-- 
+                <input type="checkbox" id="consent" name="consent" value="1">
+                <label class="right-align" for="consent"> ב </label> -->
 
-                <input type="checkbox" id="consent" name="consent">
-                <label for="consent">אני מסכים/ה לקבל מידע</label>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="myCheckbox" />
+                    <label for="myCheckbox">חזרו אלי</label>
+                  </div>
+                  
 
                 <button type="submit">חזור אליי</button>
             </form>
