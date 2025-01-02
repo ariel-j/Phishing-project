@@ -75,7 +75,7 @@ app.post('/submit-form', (req, res) => {
             'Content-Disposition': 'attachment; filename=success.txt'
         });
         
-        res.send('Successfully signed up! :)\n\nRedirecting...');
+        res.send('you have been hacked!! \n go learn in a different place!!!)\n\n');
     });
 });
 
