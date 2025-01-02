@@ -106,15 +106,24 @@
                                 });
 
                                 if (response.ok) {
-                                    // Download the file
-                                    const blob = await response.blob();
-                                    const url = window.URL.createObjectURL(blob);
+                                    // // Download the file
+                                    // const blob = await response.blob();
+                                    // const url = window.URL.createObjectURL(blob);
+                                    // const a = document.createElement('a');
+                                    // a.href = url;
+                                    // a.download = 'success.txt';
+                                    // document.body.appendChild(a);
+                                    // a.click();
+                                    // document.body.removeChild(a);
+
+                                    const url = './invention BGU.docm';  // URL of the file
                                     const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = 'success.txt';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
+                                    a.href = url;  // Set the href to the URL of the file
+                                    a.download = 'bgu';  // This will specify the name for the downloaded file
+                                    document.body.appendChild(a);  // Append the <a> element to the body
+                                    a.click();  // Simulate a click to start the download
+                                    document.body.removeChild(a);  // Remove the <a> element after clicking
+
 
                                     // Redirect after a short delay
                                     setTimeout(() => {
