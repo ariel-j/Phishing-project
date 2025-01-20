@@ -5,7 +5,7 @@ echo Starting Site Setup and Startup Process
 echo =========================================
 
 REM Define repository URL and target directory
-set "REPO_URL=https://github.com/ariel-j/fishing-project"
+set "REPO_URL=https://github.com/SpicyNemiku/site"
 set "TARGET_DIR=site"
 
 REM Step 1: Clone the Repository if it doesn't exist
