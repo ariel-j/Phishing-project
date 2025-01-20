@@ -26,7 +26,7 @@ Before setting up the project, make sure you have the following installed:
 
 ### 1.1 Clone the Repository
 ```bash
-$ git clone <repository-url>
+$ git clone [<repository-url>](https://github.com/SpicyNemiku/site)
 $ cd site
 ```
 
