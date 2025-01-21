@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const path = require('path');
+const config = require('./config.json');
 
 const app = express();
 const PORT = 3000;
@@ -17,14 +18,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// MySQL Database Connection
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Aa12345',
-    database: 'site',
-    charset: 'utf8mb4'
-});
+// MySQL Database Connection using config.json
+const db = mysql.createConnection(config.database);
 
 db.connect(err => {
     if (err) {
@@ -33,7 +28,7 @@ db.connect(err => {
     }
     console.log('Connected to MySQL');
 });
-//works
+
 // Handle form submissions
 app.post('/submit-form', (req, res) => {
     console.log('Received form data:', req.body); // Debug log
@@ -45,7 +40,6 @@ app.post('/submit-form', (req, res) => {
         lastname: req.body.lastname,
         email: req.body.email,
         phone: req.body.phone,
-        
         consent: req.body.consent ? 1 : 0
     };
 
