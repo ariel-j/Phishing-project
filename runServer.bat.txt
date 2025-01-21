@@ -1,0 +1,137 @@
+@echo off
+REM Form Submission Project Setup and Startup Script
+echo =========================================
+echo Starting Site Setup and Startup Process
+echo =========================================
+
+REM Check for all required dependencies
+echo Checking dependencies...
+
+REM Check if Node.js is installed
+node --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo Node.js is not installed!
+    echo Please install Node.js from: https://nodejs.org/
+    echo After installing, run this script again.
+    start https://nodejs.org/
+    pause
+    exit /b 1
+)
+
+REM Check if Git is installed
+git --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo Git is not installed!
+    echo Please install Git from: https://git-scm.com/downloads
+    echo After installing, run this script again.
+    start https://git-scm.com/downloads
+    pause
+    exit /b 1
+)
+
+echo All required dependencies are installed.
+echo.
+
+REM Define repository URL and target directory
+set "REPO_URL=https://github.com/ariel-j/fishing-project"
+set "TARGET_DIR=site"
+
+REM Step 1: Clone the Repository if it doesn't exist
+if not exist "%TARGET_DIR%" (
+    echo Cloning the repository...
+    git clone %REPO_URL% %TARGET_DIR%
+    if %errorlevel% neq 0 (
+        echo Failed to clone repository. Please check your internet connection and try again.
+        pause
+        exit /b 1
+    )
+) else (
+    echo Repository already cloned. Checking for updates...
+    cd %TARGET_DIR%
+    git pull
+    cd ..
+)
+
+cd %TARGET_DIR%
+
+REM Step 2: Install Node.js Dependencies
+echo Installing dependencies...
+call npm install
+if %errorlevel% neq 0 (
+    echo Failed to install Node.js dependencies.
+    pause
+    exit /b 1
+)
+
+REM Step 3: Set Up the MySQL Database
+echo Setting up the database...
+
+:credentials_prompt
+echo Please enter your MySQL credentials
+set /p "MYSQL_USER=Enter MySQL username (default: root): " || set "MYSQL_USER=root"
+set /p "MYSQL_PASSWORD=Enter MySQL password: "
+
+REM Test MySQL connection
+echo Testing MySQL connection...
+mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "SELECT 1;" > nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to connect to MySQL. Invalid credentials.
+    echo Would you like to try again? [Y/N]
+    set /p "retry="
+    if /i "%retry%"=="Y" goto credentials_prompt
+    exit /b 1
+)
+
+REM Create temporary SQL script
+set "mysql_script=create_db.sql"
+echo CREATE DATABASE IF NOT EXISTS site; > %mysql_script%
+echo USE site; >> %mysql_script%
+echo CREATE TABLE IF NOT EXISTS form_data ( >> %mysql_script%
+echo     id INT AUTO_INCREMENT PRIMARY KEY, >> %mysql_script%
+echo     firstname VARCHAR(255), >> %mysql_script%
+echo     lastname VARCHAR(255), >> %mysql_script%
+echo     email VARCHAR(255), >> %mysql_script%
+echo     phone VARCHAR(20), >> %mysql_script%
+echo     subject VARCHAR(255), >> %mysql_script%
+echo     consent BOOLEAN >> %mysql_script%
+echo ); >> %mysql_script%
+
+REM Execute SQL script
+mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% < %mysql_script%
+if %errorlevel% neq 0 (
+    echo Failed to set up database. Please check your MySQL installation.
+    del %mysql_script%
+    pause
+    exit /b 1
+)
+del %mysql_script%
+
+REM Update server configuration with database credentials
+echo.
+echo Updating server configuration...
+(
+echo {
+echo   "database": {
+echo     "host": "localhost",
+echo     "user": "%MYSQL_USER%",
+echo     "password": "%MYSQL_PASSWORD%",
+echo     "database": "site"
+echo   }
+echo }
+) > config.json
+
+REM Step 4: Start the Server
+echo Starting the server...
+start cmd /k "node server.js"
+
+REM Step 5: Open the site in the default web browser
+echo Opening the site in your default browser...
+timeout /t 5 > nul
+start http://localhost:3000
+
+REM Final Message
+echo =========================================
+echo Site setup and server startup complete!
+echo Visit http://localhost:3000 to view the site.
+echo =========================================
+pause
