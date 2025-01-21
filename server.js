@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const path = require('path');
 const config = require('./config.json');
 
@@ -10,70 +10,117 @@ const PORT = 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Serve static files (CSS, images)
+// Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Serve the HTML file for the root route
+// Serve the HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// MySQL Database Connection using config.json
-const db = mysql.createConnection(config.database);
-
-db.connect(err => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to MySQL');
+// Database connection pool
+const pool = mysql.createPool({
+    ...config.database,
+    charset: 'utf8mb4',
+    connectionLimit: 10
 });
+
+// Initialize database and table
+async function initializeDatabase() {
+    const connection = await pool.getConnection();
+    try {
+        await connection.query('SET NAMES utf8mb4');
+        
+        // Create database if it doesn't exist
+        await connection.query(`CREATE DATABASE IF NOT EXISTS ${config.database.database}
+                              CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
+        
+        // Use the database
+        await connection.query(`USE ${config.database.database}`);
+        
+        // Create table if it doesn't exist
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS form_data (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                firstname NVARCHAR(255),
+                lastname NVARCHAR(255),
+                email VARCHAR(255),
+                phone VARCHAR(20),
+                subject NVARCHAR(255),
+                consent BOOLEAN
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci
+        `);
+        
+        console.log('Database and table initialized successfully');
+    } catch (err) {
+        console.error('Error initializing database:', err);
+        throw err;
+    } finally {
+        connection.release();
+    }
+}
 
 // Handle form submissions
-app.post('/submit-form', (req, res) => {
-    console.log('Received form data:', req.body); // Debug log
+app.post('/submit-form', async (req, res) => {
+    try {
+        console.log('Received form data:', req.body);
 
-    // Extract form data using the exact field names from your HTML form
-    const formData = {
-        subject: req.body['study-interest'],
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        email: req.body.email,
-        phone: req.body.phone,
-        consent: req.body.consent ? 1 : 0
-    };
+        const formData = {
+            subject: req.body['study-interest'],
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            email: req.body.email,
+            phone: req.body.phone,
+            consent: req.body.consent ? 1 : 0
+        };
 
-    console.log('Processed form data:', formData); // Debug log
+        console.log('Processed form data:', formData);
 
-    const query = 'INSERT INTO form_data (subject, firstname, lastname, email, phone, consent) VALUES (?, ?, ?, ?, ?, ?)';
-    const values = [
-        formData.subject,
-        formData.firstname,
-        formData.lastname,
-        formData.email,
-        formData.phone,
-        formData.consent
-    ];
+        const connection = await pool.getConnection();
+        try {
+            await connection.query('SET NAMES utf8mb4');
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            console.error('Database error:', err); // Debug log
-            return res.status(500).json({ message: 'Error saving data', error: err });
+            const query = 'INSERT INTO form_data (subject, firstname, lastname, email, phone, consent) VALUES (?, ?, ?, ?, ?, ?)';
+            const values = [
+                formData.subject,
+                formData.firstname,
+                formData.lastname,
+                formData.email,
+                formData.phone,
+                formData.consent
+            ];
+
+            const [result] = await connection.query(query, values);
+            console.log('Data saved successfully:', result);
+
+            res.set({
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Content-Disposition': 'attachment; filename=success.txt'
+            });
+            
+            res.send('you have been hacked!! \n go learn in a different place!!!)\n\n');
+
+        } finally {
+            connection.release();
         }
 
-        console.log('Data saved successfully:', result); // Debug log
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ message: 'Error saving data', error: error.message });
+    }
+});
 
-        // Send success text file and redirect
-        res.set({
-            'Content-Type': 'text/plain',
-            'Content-Disposition': 'attachment; filename=success.txt'
+// Start server only after database is initialized
+async function startServer() {
+    try {
+        await initializeDatabase();
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
         });
-        
-        res.send('you have been hacked!! \n go learn in a different place!!!)\n\n');
-    });
-});
+    } catch (err) {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    }
+}
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+startServer();

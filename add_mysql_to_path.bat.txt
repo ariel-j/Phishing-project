@@ -1,4 +1,6 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 NET SESSION >nul 2>&1
 if %errorlevel% neq 0 (
     echo This script requires administrator privileges.
@@ -16,12 +18,9 @@ REM Search Program Files for any MySQL installation
 for /d %%D in ("C:\Program Files\MySQL\*") do (
     if exist "%%D\bin\mysql.exe" (
         echo Found MySQL in: %%D\bin
-        if defined PATHS_TO_ADD (
-            set "PATHS_TO_ADD=!PATHS_TO_ADD!;%%D\bin"
-        ) else (
-            set "PATHS_TO_ADD=%%D\bin"
-        )
+        set "PATHS_TO_ADD=%%D\bin"
         set "PATHS_ADDED=1"
+        goto :found_mysql
     )
 )
 
@@ -29,45 +28,28 @@ REM Search Program Files (x86) for any MySQL installation
 for /d %%D in ("C:\Program Files (x86)\MySQL\*") do (
     if exist "%%D\bin\mysql.exe" (
         echo Found MySQL in: %%D\bin
-        if defined PATHS_TO_ADD (
-            set "PATHS_TO_ADD=!PATHS_TO_ADD!;%%D\bin"
-        ) else (
-            set "PATHS_TO_ADD=%%D\bin"
-        )
+        set "PATHS_TO_ADD=%%D\bin"
         set "PATHS_ADDED=1"
+        goto :found_mysql
     )
 )
 
-REM Search for MariaDB (MySQL compatible)
-for /d %%D in ("C:\Program Files\MariaDB*\bin") do (
-    if exist "%%D\mysql.exe" (
-        echo Found MariaDB in: %%D
-        if defined PATHS_TO_ADD (
-            set "PATHS_TO_ADD=!PATHS_TO_ADD!;%%D"
-        ) else (
-            set "PATHS_TO_ADD=%%D"
-        )
-        set "PATHS_ADDED=1"
-    )
+REM Check specific common paths
+if exist "C:\xampp\mysql\bin\mysql.exe" (
+    echo Found MySQL in XAMPP
+    set "PATHS_TO_ADD=C:\xampp\mysql\bin"
+    set "PATHS_ADDED=1"
+    goto :found_mysql
 )
 
-REM Custom paths - add any additional paths here
-for %%P in (
-    "C:\xampp\mysql\bin"
-    "C:\wamp\bin\mysql\mysql*\bin"
-    "C:\wamp64\bin\mysql\mysql*\bin"
-) do (
-    if exist "%%~P\mysql.exe" (
-        echo Found MySQL in: %%~P
-        if defined PATHS_TO_ADD (
-            set "PATHS_TO_ADD=!PATHS_TO_ADD!;%%~P"
-        ) else (
-            set "PATHS_TO_ADD=%%~P"
-        )
-        set "PATHS_ADDED=1"
-    )
+if exist "C:\Program Files\MariaDB 10.11\bin\mysql.exe" (
+    echo Found MariaDB
+    set "PATHS_TO_ADD=C:\Program Files\MariaDB 10.11\bin"
+    set "PATHS_ADDED=1"
+    goto :found_mysql
 )
 
+:check_found
 if %PATHS_ADDED%==0 (
     echo No MySQL installations found in common locations.
     echo If MySQL is installed in a custom location, please add it manually to your PATH.
@@ -75,60 +57,38 @@ if %PATHS_ADDED%==0 (
     echo - C:\Program Files\MySQL\*\bin
     echo - C:\Program Files (x86)\MySQL\*\bin
     echo - C:\xampp\mysql\bin
-    echo - C:\wamp[64]\bin\mysql\*\bin
     echo - C:\Program Files\MariaDB*\bin
     pause
     exit /b 1
 )
 
-echo.
-echo Found MySQL paths:
-echo %PATHS_TO_ADD%
-echo.
+:found_mysql
+echo Found MySQL path: %PATHS_TO_ADD%
 
 REM Create a temporary VBScript to modify the system PATH
-echo Creating system PATH update script...
-echo Set oWS = WScript.CreateObject("WScript.Shell") > "%TEMP%\updatepath.vbs"
-echo sPath = oWS.ExpandEnvironmentStrings("%%PATH%%") >> "%TEMP%\updatepath.vbs"
-echo If InStr(1, sPath, "%PATHS_TO_ADD%", 1) = 0 Then >> "%TEMP%\updatepath.vbs"
-echo     sPath = sPath ^& ";%PATHS_TO_ADD%" >> "%TEMP%\updatepath.vbs"
-echo     oWS.Environment("SYSTEM").Item("PATH") = sPath >> "%TEMP%\updatepath.vbs"
-echo End If >> "%TEMP%\updatepath.vbs"
+(
+echo Set oWS = WScript.CreateObject^("WScript.Shell"^)
+echo sPath = oWS.ExpandEnvironmentStrings^("%%PATH%%"^)
+echo If InStr^(1, sPath, "%PATHS_TO_ADD%", 1^) = 0 Then
+echo     sPath = sPath ^& ";%PATHS_TO_ADD%"
+echo     oWS.Environment^("SYSTEM"^).Item^("PATH"^) = sPath
+echo End If
+) > "%TEMP%\updatepath.vbs"
 
-echo Updating system PATH...
 cscript //nologo "%TEMP%\updatepath.vbs"
 if %errorlevel% neq 0 (
     echo Failed to update PATH.
     del "%TEMP%\updatepath.vbs"
-    pause
     exit /b 1
 )
 
 del "%TEMP%\updatepath.vbs"
 
-echo.
-echo MySQL paths have been added to system PATH successfully!
-echo Please close and reopen any command prompt windows for the changes to take effect.
-echo.
+echo MySQL path has been added to system PATH successfully.
 echo Testing MySQL command...
-echo.
-
-REM Refresh environment variables for the current session
-call refreshenv.exe 2>nul
-if %errorlevel% neq 0 (
-    echo Note: 'refreshenv' not available. You'll need to close and reopen command prompt.
-)
-
-REM Test if mysql command works now
 mysql --version
-if %errorlevel% equ 0 (
-    echo.
-    echo MySQL command is now working successfully!
-) else (
-    echo.
-    echo Please close all command prompt windows and open a new one to use MySQL commands.
-)
 
 echo.
-echo Script complete! You may close this window.
+echo Script completed successfully!
+endlocal
 pause

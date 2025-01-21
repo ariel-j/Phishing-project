@@ -1,0 +1,46 @@
+@echo off
+chcp 65001 > nul
+
+echo ========================================
+echo Database Viewer
+echo ========================================
+
+REM Get credentials from config.json if it exists
+set "MYSQL_USER="
+set "MYSQL_PASSWORD="
+
+if exist "config.json" (
+    for /f "tokens=2 delims=:," %%a in ('type config.json ^| findstr "user"') do (
+        set "MYSQL_USER=%%a"
+        set "MYSQL_USER=!MYSQL_USER:"=!"
+        set "MYSQL_USER=!MYSQL_USER: =!"
+    )
+    for /f "tokens=2 delims=:," %%a in ('type config.json ^| findstr "password"') do (
+        set "MYSQL_PASSWORD=%%a"
+        set "MYSQL_PASSWORD=!MYSQL_PASSWORD:"=!"
+        set "MYSQL_PASSWORD=!MYSQL_PASSWORD: =!"
+    )
+)
+
+if not defined MYSQL_USER (
+    set /p "MYSQL_USER=Enter MySQL username (default: root): " || set "MYSQL_USER=root"
+)
+if not defined MYSQL_PASSWORD (
+    set /p "MYSQL_PASSWORD=Enter MySQL password: "
+)
+
+REM Create a temporary SQL file with proper encoding settings
+echo SET NAMES utf8mb4; > view_data.sql
+echo USE site; >> view_data.sql
+echo SELECT * FROM form_data; >> view_data.sql
+
+REM Run MySQL with the script
+mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% < view_data.sql
+
+REM Clean up
+del view_data.sql
+
+echo.
+echo ========================================
+echo Press any key to exit...
+pause > nul

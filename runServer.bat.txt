@@ -1,4 +1,6 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 REM Form Submission Project Setup and Startup Script
 echo =========================================
 echo Starting Site Setup and Startup Process
@@ -31,55 +33,53 @@ if %errorlevel% neq 0 (
 
 REM Check for MySQL installation
 set "MYSQL_FOUND=0"
-set "MYSQL_CMD=mysql"
 
 REM Check common MySQL installation paths
-if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
-if exist "C:\Program Files (x86)\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
-if exist "C:\Program Files\MySQL\MySQL Shell 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
-if exist "C:\xampp\mysql\bin\mysql.exe" set "MYSQL_FOUND=1"
-if exist "C:\wamp64\bin\mysql\mysql*\bin\mysql.exe" set "MYSQL_FOUND=1"
-if exist "C:\Program Files\MariaDB*\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" (
+    set "MYSQL_FOUND=1"
+    set "PATH=C:\Program Files\MySQL\MySQL Server 8.0\bin;%PATH%"
+    echo Found MySQL in: C:\Program Files\MySQL\MySQL Server 8.0\bin
+)
+if exist "C:\Program Files\MySQL\MySQL Shell 8.0\bin\mysql.exe" (
+    set "MYSQL_FOUND=1"
+    set "PATH=C:\Program Files\MySQL\MySQL Shell 8.0\bin;%PATH%"
+    echo Found MySQL in: C:\Program Files\MySQL\MySQL Shell 8.0\bin
+)
+if exist "C:\xampp\mysql\bin\mysql.exe" (
+    set "MYSQL_FOUND=1"
+    set "PATH=C:\xampp\mysql\bin;%PATH%"
+    echo Found MySQL in: C:\xampp\mysql\bin
+)
 
-REM Try mysql command directly in case it's in PATH
+REM Try mysql command directly
 mysql --version > nul 2>&1
 if %errorlevel% equ 0 set "MYSQL_FOUND=1"
 
 if %MYSQL_FOUND%==0 (
     echo MySQL is not installed or not found!
-    echo Please install MySQL by following these steps:
-    echo 1. Download MySQL from: https://dev.mysql.com/downloads/installer/
-    echo 2. Run the installer and follow the setup process
-    echo 3. During installation, remember the root password you set
-    echo 4. After installation, add MySQL to system PATH if not done automatically
-    echo.
-    echo Press any key to open the MySQL download page...
-    pause > nul
+    echo Please install MySQL from: https://dev.mysql.com/downloads/installer/
     start https://dev.mysql.com/downloads/installer/
-    echo.
-    echo After installing MySQL, run this script again.
     pause
     exit /b 1
 )
 
-echo All required dependencies are installed.
+echo All required dependencies installed.
 echo.
 
 REM Define repository URL and target directory
 set "REPO_URL=https://github.com/ariel-j/fishing-project"
 set "TARGET_DIR=site"
 
-REM Step 1: Clone the Repository if it doesn't exist
+REM Clone Repository
 if not exist "%TARGET_DIR%" (
-    echo Cloning the repository...
+    echo Cloning repository...
     git clone %REPO_URL% %TARGET_DIR%
     if %errorlevel% neq 0 (
-        echo Failed to clone repository. Please check your internet connection and try again.
+        echo Failed to clone repository.
         pause
         exit /b 1
     )
 ) else (
-    echo Repository already cloned. Checking for updates...
     cd %TARGET_DIR%
     git pull
     cd ..
@@ -87,61 +87,38 @@ if not exist "%TARGET_DIR%" (
 
 cd %TARGET_DIR%
 
-REM Step 2: Install Node.js Dependencies
+REM Install Node.js Dependencies
 echo Installing dependencies...
 call npm install
 if %errorlevel% neq 0 (
-    echo Failed to install Node.js dependencies.
+    echo Failed to install dependencies.
     pause
     exit /b 1
 )
 
-REM Step 3: Set Up the MySQL Database
-echo Setting up the database...
+REM Set Up MySQL Database
+echo Setting up database...
 
 :credentials_prompt
-echo Please enter your MySQL credentials
 set /p "MYSQL_USER=Enter MySQL username (default: root): " || set "MYSQL_USER=root"
 set /p "MYSQL_PASSWORD=Enter MySQL password: "
 
-REM Test MySQL connection
-echo Testing MySQL connection...
+REM Test connection
 mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "SELECT 1;" > nul 2>&1
 if %errorlevel% neq 0 (
-    echo Failed to connect to MySQL. Invalid credentials.
-    echo Would you like to try again? [Y/N]
+    echo Invalid credentials. Try again? [Y/N]
     set /p "retry="
     if /i "%retry%"=="Y" goto credentials_prompt
     exit /b 1
 )
 
-REM Create temporary SQL script
-set "mysql_script=create_db.sql"
-echo CREATE DATABASE IF NOT EXISTS site; > %mysql_script%
-echo USE site; >> %mysql_script%
-echo CREATE TABLE IF NOT EXISTS form_data ( >> %mysql_script%
-echo     id INT AUTO_INCREMENT PRIMARY KEY, >> %mysql_script%
-echo     firstname VARCHAR(255), >> %mysql_script%
-echo     lastname VARCHAR(255), >> %mysql_script%
-echo     email VARCHAR(255), >> %mysql_script%
-echo     phone VARCHAR(20), >> %mysql_script%
-echo     subject VARCHAR(255), >> %mysql_script%
-echo     consent BOOLEAN >> %mysql_script%
-echo ); >> %mysql_script%
+REM Create and execute SQL commands directly
+echo Creating database and tables...
+mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% -e "DROP DATABASE IF EXISTS site; CREATE DATABASE site CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% site -e "CREATE TABLE IF NOT EXISTS form_data (id INT AUTO_INCREMENT PRIMARY KEY, firstname NVARCHAR(255), lastname NVARCHAR(255), email VARCHAR(255), phone VARCHAR(20), subject NVARCHAR(255), consent BOOLEAN) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-REM Execute SQL script
-mysql -u %MYSQL_USER% -p%MYSQL_PASSWORD% < %mysql_script%
-if %errorlevel% neq 0 (
-    echo Failed to set up database. Please check your MySQL installation.
-    del %mysql_script%
-    pause
-    exit /b 1
-)
-del %mysql_script%
-
-REM Update server configuration with database credentials
-echo.
-echo Updating server configuration...
+REM Create config.json
+echo Creating config file...
 (
 echo {
 echo   "database": {
@@ -153,18 +130,57 @@ echo   }
 echo }
 ) > config.json
 
-REM Step 4: Start the Server
-echo Starting the server...
+REM Create database viewer script
+echo Creating database viewer script...
+(
+echo @echo off
+echo chcp 65001 ^> nul
+echo.
+echo echo ========================================
+echo echo Database Viewer
+echo echo ========================================
+echo.
+echo set "MYSQL_USER=%MYSQL_USER%"
+echo set "MYSQL_PASSWORD=%MYSQL_PASSWORD%"
+echo.
+echo REM Create a temporary SQL file with proper encoding settings
+echo echo SET NAMES utf8mb4; ^> view_data.sql
+echo echo USE site; ^>^> view_data.sql
+echo echo SELECT * FROM form_data; ^>^> view_data.sql
+echo.
+echo REM Run MySQL with the script
+echo mysql -u %%MYSQL_USER%% -p%%MYSQL_PASSWORD%% ^< view_data.sql
+echo.
+echo REM Clean up
+echo del view_data.sql
+echo.
+echo echo.
+echo echo ========================================
+echo echo Press any key to exit...
+echo pause ^> nul
+) > view_database.bat
+
+REM Create server startup script
+echo Creating server startup script...
+(
+echo @echo off
+echo start cmd /k "node server.js"
+echo timeout /t 5 ^> nul
+echo start http://localhost:3000
+) > runServer.bat
+
+REM Start server
+echo Starting server...
 start cmd /k "node server.js"
 
-REM Step 5: Open the site in the default web browser
-echo Opening the site in your default browser...
+REM Open browser
 timeout /t 5 > nul
 start http://localhost:3000
 
-REM Final Message
 echo =========================================
-echo Site setup and server startup complete!
-echo Visit http://localhost:3000 to view the site.
+echo Setup complete! 
+echo - Run 'runServer.bat' to start the server
+echo - Run 'view_database.bat' to view the database
 echo =========================================
+endlocal
 pause
