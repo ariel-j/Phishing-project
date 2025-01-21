@@ -29,6 +29,39 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Check for MySQL installation
+set "MYSQL_FOUND=0"
+set "MYSQL_CMD=mysql"
+
+REM Check common MySQL installation paths
+if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\Program Files (x86)\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\Program Files\MySQL\MySQL Shell 8.0\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\xampp\mysql\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\wamp64\bin\mysql\mysql*\bin\mysql.exe" set "MYSQL_FOUND=1"
+if exist "C:\Program Files\MariaDB*\bin\mysql.exe" set "MYSQL_FOUND=1"
+
+REM Try mysql command directly in case it's in PATH
+mysql --version > nul 2>&1
+if %errorlevel% equ 0 set "MYSQL_FOUND=1"
+
+if %MYSQL_FOUND%==0 (
+    echo MySQL is not installed or not found!
+    echo Please install MySQL by following these steps:
+    echo 1. Download MySQL from: https://dev.mysql.com/downloads/installer/
+    echo 2. Run the installer and follow the setup process
+    echo 3. During installation, remember the root password you set
+    echo 4. After installation, add MySQL to system PATH if not done automatically
+    echo.
+    echo Press any key to open the MySQL download page...
+    pause > nul
+    start https://dev.mysql.com/downloads/installer/
+    echo.
+    echo After installing MySQL, run this script again.
+    pause
+    exit /b 1
+)
+
 echo All required dependencies are installed.
 echo.
 
